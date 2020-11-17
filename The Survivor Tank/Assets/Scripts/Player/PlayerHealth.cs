@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using SCILL.Model;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -77,6 +78,9 @@ public class PlayerHealth : MonoBehaviour
 
     public void AddShield(float time)
     {
+        var metaData = new EventMetaData { amount = 1, item_type = "shield"};
+        SCILLManager.Instance.SendEventAsync("collect-item", "single", metaData);
+        
         StartCoroutine(AddShieldCourtine(time));
     }
 
@@ -129,8 +133,10 @@ public class PlayerHealth : MonoBehaviour
     {
         // Set the death flag so this function won't be called again.
         isDead = true;
-
-
+        
+        var metaData = new EventMetaData { amount = 1 };
+        SCILLManager.Instance.SendEventAsync("instant-death", "single", metaData);
+        
         // Set the audiosource to play the death clip and play it (this will stop the hurt sound from playing).
         //playerAudio.clip = deathClip;
         //playerAudio.Play();

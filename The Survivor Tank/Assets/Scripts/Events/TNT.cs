@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using SCILL.Model;
 using UnityEngine;
 
 public class TNT : MonoBehaviour
@@ -64,6 +65,9 @@ public class TNT : MonoBehaviour
                 // ... the enemy should take damage.
                 playerHealth.TakeDamage(damageOfExplosion);
                 player.GetComponent<PlayerMovement>().ReduceSpeed(timeOfReductionSpeed);
+                
+                var metaData = new EventMetaData { amount = damageOfExplosion, item_type = "tnt"};
+                SCILLManager.Instance.SendEventAsync("receive-damage", "single", metaData);
             }
         }
     }
