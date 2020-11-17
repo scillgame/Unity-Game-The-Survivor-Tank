@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using SCILL.Model;
 using UnityEngine;
 
 public class EnemyBullet : MonoBehaviour
@@ -26,6 +27,13 @@ public class EnemyBullet : MonoBehaviour
                 // ... the enemy should take damage.
                 playerHealth.TakeDamage(enemyShooting.damagePerShot);
             }
+
+            var metaData = new EventMetaData
+            {
+                damage_amount = enemyShooting.damagePerShot, 
+                enemy_character = "tank"
+            };
+            SCILLManager.Instance.SendEventAsync("receive-damage", "single", metaData);
         }
 
         Destroy(gameObject);

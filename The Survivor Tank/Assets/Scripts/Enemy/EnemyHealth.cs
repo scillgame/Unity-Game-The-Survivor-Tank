@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using SCILL.Model;
 using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
@@ -60,6 +61,9 @@ public class EnemyHealth : MonoBehaviour
 
             // After 2 seconds destory the enemy.
             Destroy(gameObject, 3f);
+            
+            var metaData = new EventMetaData {amount = 1, enemy_type = gameObject.name};
+            SCILLManager.Instance.SendEventAsync("kill-enemy", "single", metaData);
         }
     }
 }

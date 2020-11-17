@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using SCILL.Model;
 using UnityEngine;
 
 public class PlayerBullet : MonoBehaviour
@@ -29,6 +30,9 @@ public class PlayerBullet : MonoBehaviour
             {
                 // ... the enemy should take damage.
                 enemyHealth.TakeDamage(playerShooting.damagePerShot, collision.transform.position);
+
+                var metaData = new EventMetaData {damage_amount = playerShooting.damagePerShot};
+                SCILLManager.Instance.SendEventAsync("deal-damage", "single", metaData);
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using SCILL.Model;
 using UnityEngine;
 
 public class Heart : MonoBehaviour
@@ -29,6 +30,9 @@ public class Heart : MonoBehaviour
             {
                 playerHealth.GetLife(life);
             }
+            
+            var metaData = new EventMetaData { amount = life, item_type = "health"};
+            SCILLManager.Instance.SendEventAsync("collect-item", "single", metaData);
 
             Destroy(gameObject);
         }

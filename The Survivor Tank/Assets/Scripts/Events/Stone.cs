@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using SCILL.Model;
 using UnityEngine;
 
 public class Stone : MonoBehaviour
@@ -45,6 +46,13 @@ public class Stone : MonoBehaviour
             if (playerHealth.currentHealth > 0)
             {
                 playerHealth.TakeDamage(damage);
+                
+                var metaData = new EventMetaData
+                {
+                    damage_amount = damage, 
+                    enemy_character = "stone"
+                };
+                SCILLManager.Instance.SendEventAsync("receive-damage", "single", metaData);
             }
         }
 

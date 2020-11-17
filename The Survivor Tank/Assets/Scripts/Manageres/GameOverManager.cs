@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using SCILL.Model;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,8 +12,11 @@ public class GameOverManager : MonoBehaviour
 
     void Awake()
     {
-        // Set up the reference.
+	    // Set up the reference.
         anim = GetComponent<Animator>();
+        
+        var metaData = new EventMetaData {amount = 1, event_type = "start"};
+        SCILLManager.Instance.SendEventAsync("trigger-event", "single", metaData);
     }
 
     private void Start()
@@ -30,9 +34,18 @@ public class GameOverManager : MonoBehaviour
 
         // Tell the animator the game is over...
         anim.SetTrigger("GameOver");
+        
+        var metaData = new EventMetaData {amount = 1, event_type = "end"};
+        SCILLManager.Instance.SendEventAsync("trigger-event", "single", metaData);
 
-		yield return new WaitForSeconds(3f);
+        if (ScoreManager.score > 0)
+        {
+	        metaData = new EventMetaData {score = ScoreManager.score};
+	        SCILLManager.Instance.SendEventAsync("achieve-score", "group", metaData);			
+        }
 
+        yield return new WaitForSeconds(3f);
+		
 		// Reload the level that is currently loaded.
 		SceneManager.LoadScene(0);
 	}

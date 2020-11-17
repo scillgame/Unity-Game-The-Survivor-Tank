@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using SCILL.Model;
 using UnityEngine;
 
 public class StrongerWeapon : MonoBehaviour
@@ -23,6 +24,13 @@ public class StrongerWeapon : MonoBehaviour
             if (other.gameObject.GetComponent<PlayerHealth>().currentHealth > 0)
             {
                 other.gameObject.GetComponent<PlayerShooting>().GetStrongerWeapon(timeToStrongerWeapon);
+                
+                var metaData = new EventMetaData
+                {
+                    weapon_type = "strongerWeapon", 
+                    duration = (int)timeToStrongerWeapon
+                };
+                SCILLManager.Instance.SendEventAsync("weapon-activated", "single", metaData);
             }
 
             Destroy(gameObject);
