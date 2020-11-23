@@ -92,6 +92,14 @@ public class SCILLBattlePass : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (battlePass.unlocked_at != null)
+        {
+            // This battle pass is unlocked
+            unlockGroup.SetActive(false);
+        }
+        else
+        {
+            unlockGroup.SetActive(true);
+        }
     }
 }

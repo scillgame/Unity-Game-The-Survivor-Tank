@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 16907372973050058}
   - component: {fileID: 16907372973050060}
   - component: {fileID: 16907372973050061}
-  - component: {fileID: 16907372973050063}
+  - component: {fileID: 8421306317805368545}
   m_Layer: 5
   m_Name: Locked
   m_TagString: Untagged
@@ -75,7 +75,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &16907372973050063
+--- !u!114 &8421306317805368545
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -84,7 +84,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 16907372973050059}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae23ac8163d6149a88c038c3cc86453b, type: 3}
+  m_Script: {fileID: 11500000, guid: e8964b09fb517455c86338ee7fe884b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ifLocked: 0
@@ -413,6 +413,7 @@ MonoBehaviour:
     type: 3}
   battlePassLevels: {fileID: 1056480646485008153}
   rewardPreview: {fileID: 0}
+  unlockGroup: {fileID: 2771809246329431809}
 --- !u!114 &3410952679018516318
 MonoBehaviour:
   m_ObjectHideFlags: 0
