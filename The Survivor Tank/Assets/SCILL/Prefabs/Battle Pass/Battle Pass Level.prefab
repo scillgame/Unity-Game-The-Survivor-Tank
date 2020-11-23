@@ -282,7 +282,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ifLocked: 0
-  ifUnlocked: 1
+  ifUnlocked: 2
+  ifCompleted: 1
+  ifUncompleted: 0
 --- !u!1 &1349210448312379380
 GameObject:
   m_ObjectHideFlags: 0
@@ -601,6 +603,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ifLocked: 0
   ifUnlocked: 1
+  ifCompleted: 2
+  ifUncompleted: 2
 --- !u!1 &1349210449339588692
 GameObject:
   m_ObjectHideFlags: 0
@@ -689,7 +693,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ifLocked: 1
-  ifUnlocked: 0
+  ifUnlocked: 2
+  ifCompleted: 0
+  ifUncompleted: 1
 --- !u!1 &1349210449384290578
 GameObject:
   m_ObjectHideFlags: 0
@@ -791,6 +797,8 @@ MonoBehaviour:
   battlePassLevelInfo: {fileID: 1349210448024288187}
   levelName: {fileID: 1349210448399650705}
   rewardImage: {fileID: 1349210448369567444}
+  button: {fileID: 0}
+  reward: {fileID: 1349210448312379380}
   showLevelInfo: 1
 --- !u!114 &7879756430324115442
 MonoBehaviour:
@@ -924,3 +932,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ifLocked: 0
   ifUnlocked: 1
+  ifCompleted: 2
+  ifUncompleted: 2

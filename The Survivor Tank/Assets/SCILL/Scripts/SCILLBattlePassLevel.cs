@@ -14,8 +14,12 @@ public class SCILLBattlePassLevel : MonoBehaviour
     public Text levelName;
     public Image rewardImage;
     public Button button;
+    public GameObject reward;
 
     public bool showLevelInfo = true;
+
+    private SCILLReward _reward;
+    
 
     private void Awake()
     {
@@ -25,12 +29,18 @@ public class SCILLBattlePassLevel : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Load a sprite with name challenge_icon from resources folder
-        Sprite sprite = Resources.Load<Sprite>(battlePassLevel.reward_amount);
-        rewardImage.sprite = sprite;
+        _reward = Resources.Load<SCILLReward>(battlePassLevel.reward_amount);
+        if (_reward)
+        {
+            rewardImage.sprite = _reward.image;
+            reward.SetActive(true);
+        }
+        else
+        {
+            reward.SetActive(false);
+        }
 
         levelName.text = battlePassLevel.level_priority.ToString();
-        
         battlePassLevelInfo.SetActive(showLevelInfo);
     }
 

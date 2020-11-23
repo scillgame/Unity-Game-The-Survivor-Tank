@@ -31,8 +31,8 @@ public class SCILLRewardPreview : MonoBehaviour
 
         if (_scillReward.prefab)
         {
-            _rewardModel = Instantiate(_scillReward.prefab, Vector3.zero, Quaternion.identity, photoBox.transform);
-            _rewardModel.transform.localPosition = Vector3.zero;
+            _rewardModel = Instantiate(_scillReward.prefab, photoBox.transform);
+            //_rewardModel.transform.localPosition = Vector3.zero;
         }
 
         if (rewardDescription)

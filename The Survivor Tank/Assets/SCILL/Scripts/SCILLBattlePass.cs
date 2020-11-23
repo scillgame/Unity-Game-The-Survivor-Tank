@@ -13,7 +13,9 @@ public class SCILLBattlePass : MonoBehaviour
     
     public bool showLevelInfo = true;
     public GameObject levelPrefab;
+    public Transform battlePassLevels;
     public SCILLRewardPreview rewardPreview;
+    public GameObject unlockGroup;
 
     private List<BattlePassLevel> _levels;
     
@@ -26,7 +28,6 @@ public class SCILLBattlePass : MonoBehaviour
         {
             Sprite sprite = Resources.Load<Sprite>(battlePass.image);
             image.sprite = sprite;
-    
         }
         
         UpdateBattlePassLevels();
@@ -50,7 +51,7 @@ public class SCILLBattlePass : MonoBehaviour
             }
             else
             {
-                levelGO = Instantiate(levelPrefab);
+                levelGO = Instantiate(levelPrefab, battlePassLevels, false);
                 var levelItem = levelGO.GetComponent<SCILLBattlePassLevel>();
                 if (levelItem)
                 {
@@ -58,7 +59,6 @@ public class SCILLBattlePass : MonoBehaviour
                     levelItem.showLevelInfo = levelItem;
                     levelItem.button.onClick.AddListener(delegate{OnBattlePassLevelClicked(levelItem);});
                 }
-                levelGO.transform.SetParent(this.transform);
                 _levelObjects.Add(i, levelGO);
             }
         }
@@ -77,7 +77,17 @@ public class SCILLBattlePass : MonoBehaviour
         {
             rewardPreview.gameObject.SetActive(false);
         }
-    } 
+    }
+
+    public async void OnBattlePassUnlockButtonPressed()
+    {
+        var purchaseInfo = new BattlePassUnlockPayload(0, "EUR");
+        var unlockInfo = await SCILLManager.Instance.SCILLClient.UnlockBattlePassAsync(battlePass.battle_pass_id, purchaseInfo);
+        if (unlockInfo != null)
+        {
+            UpdateBattlePassLevels();
+        }
+    }
     
     // Update is called once per frame
     void Update()

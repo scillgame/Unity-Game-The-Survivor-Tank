@@ -7,13 +7,16 @@ using UnityEngine.UI;
 public enum SCILLBattlePassLevelVisibility
 {
     Visible,
-    Hidden
+    Hidden,
+    DoNothing
 }
 
 public class SCILLBattlePassLevelToggleVisibility : MonoBehaviour
 {
     public SCILLBattlePassLevelVisibility ifLocked;
     public SCILLBattlePassLevelVisibility ifUnlocked;
+    public SCILLBattlePassLevelVisibility ifCompleted;
+    public SCILLBattlePassLevelVisibility ifUncompleted;
 
     [HideInInspector]
     public BattlePassLevel battlePassLevel;
@@ -39,14 +42,37 @@ public class SCILLBattlePassLevelToggleVisibility : MonoBehaviour
         {
             return;
         }
-        
-        if (battlePassLevel.level_completed == false)
+
+        if (ifLocked != SCILLBattlePassLevelVisibility.DoNothing)
         {
-            _image.enabled = (ifLocked == SCILLBattlePassLevelVisibility.Visible);
+            if (battlePassLevel.activated_at == null)
+            {
+                _image.enabled = (ifLocked == SCILLBattlePassLevelVisibility.Visible);
+            }
         }
-        else
+        
+        if (ifUnlocked != SCILLBattlePassLevelVisibility.DoNothing)
         {
-            _image.enabled = (ifUnlocked == SCILLBattlePassLevelVisibility.Visible);
+            if (battlePassLevel.activated_at != null)
+            {
+                _image.enabled = (ifUnlocked == SCILLBattlePassLevelVisibility.Visible);
+            }
+        }
+        
+        if (ifCompleted != SCILLBattlePassLevelVisibility.DoNothing)
+        {
+            if (battlePassLevel.level_completed == true)
+            {
+                _image.enabled = (ifCompleted == SCILLBattlePassLevelVisibility.Visible);
+            }
+        }
+        
+        if (ifUncompleted != SCILLBattlePassLevelVisibility.DoNothing)
+        {
+            if (battlePassLevel.level_completed == false)
+            {
+                _image.enabled = (ifUncompleted == SCILLBattlePassLevelVisibility.Visible);
+            }
         }
     }
 }
