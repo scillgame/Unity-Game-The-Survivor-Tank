@@ -85,6 +85,7 @@ public class SCILLBattlePass : MonoBehaviour
         var unlockInfo = await SCILLManager.Instance.SCILLClient.UnlockBattlePassAsync(battlePass.battle_pass_id, purchaseInfo);
         if (unlockInfo != null)
         {
+            battlePass.unlocked_at = unlockInfo.purchased_at;
             UpdateBattlePassLevels();
         }
     }
