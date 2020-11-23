@@ -9,11 +9,13 @@ using SCILL.Api;
 using SCILL.Model;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
+using Environment = SCILL.Environment;
 
 public class SCILLManager : MonoBehaviour
 {
     public string APIKey;
     public string AppId;
+    public SCILL.Environment environment;
 
     public string AccessToken => _accessToken;
 
@@ -48,12 +50,21 @@ public class SCILLManager : MonoBehaviour
             Instance = this;
             
             // This part should be done in the backend if possible to not expose the API key
-            _scillBackend = new SCILLBackend(this.APIKey);
+            _scillBackend = new SCILLBackend(this.APIKey, environment);
             _accessToken = _scillBackend.GetAccessToken(UserId);
             
-            _scillClient = new SCILLClient(_accessToken, AppId);
+            _scillClient = new SCILLClient(_accessToken, AppId, environment);
+
+            string env = "production";
+            if (environment == Environment.Staging)
+            {
+                env = "staging";
+            } else if (environment == Environment.Development)
+            {
+                env = "development";
+            }
             
-            var server = "wss://playground.scillgame.com/scill/ws/challenges/" + AppId + "/" + UserId + "/unity-editor?environment=production";
+            var server = "wss://playground.scillgame.com/scill/ws/challenges/" + AppId + "/" + UserId + "/unity-editor?environment=" + env;
             _wsClient = new WsClient(server);
             await _wsClient.Connect();
 
