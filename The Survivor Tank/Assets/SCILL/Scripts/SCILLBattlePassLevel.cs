@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using SCILL.Model;
 using UnityEngine;
@@ -12,9 +13,15 @@ public class SCILLBattlePassLevel : MonoBehaviour
     public GameObject battlePassLevelInfo;
     public Text levelName;
     public Image rewardImage;
+    public Button button;
 
     public bool showLevelInfo = true;
-    
+
+    private void Awake()
+    {
+        button = GetComponent<Button>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {

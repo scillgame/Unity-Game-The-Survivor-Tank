@@ -35,7 +35,7 @@ public class SCILLBattlePassLevelToggleVisibility : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!_image)
+        if (!_image || battlePassLevel == null)
         {
             return;
         }
