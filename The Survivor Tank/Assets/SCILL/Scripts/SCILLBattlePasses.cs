@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using SCILL.Model;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SCILLBattlePasses : MonoBehaviour
 {
@@ -9,7 +11,10 @@ public class SCILLBattlePasses : MonoBehaviour
 
     public GameObject battlePassPrefab;
     public SCILLRewardPreview rewardPreview;
-    
+
+    public int itemsPerPage = 5;
+    public int currentPageIndex = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -31,6 +36,7 @@ public class SCILLBattlePasses : MonoBehaviour
                 battlePassScript.battlePass = battlePass;
                 battlePassScript.showLevelInfo = (i == 0);
                 battlePassScript.rewardPreview = rewardPreview;
+                battlePassScript.itemsPerPage = itemsPerPage;
             }
             battlePassGO.transform.SetParent(this.transform);
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using SCILL.Model;
 using UnityEngine;
@@ -16,9 +17,16 @@ public class SCILLBattlePass : MonoBehaviour
     public Transform battlePassLevels;
     public SCILLRewardPreview rewardPreview;
     public GameObject unlockGroup;
+    public GameObject prevButton;
+    public GameObject nextButton;
+    public Text pageText;
+
+    public int itemsPerPage = 5;
+    public int currentPageIndex = 0;
 
     private List<BattlePassLevel> _levels;
-    
+    private SCILLBattlePassLevel _selectedBattlePassLevel;
+
     private Dictionary<int, GameObject> _levelObjects = new Dictionary<int, GameObject>();
     
     // Start is called before the first frame update
@@ -31,24 +39,39 @@ public class SCILLBattlePass : MonoBehaviour
         }
         
         if (rewardPreview) rewardPreview.gameObject.SetActive(false);
-        
+
         UpdateBattlePassLevels();
+        UpdateBattlePass();
     }
 
     async void UpdateBattlePassLevels()
     {
         _levels = await SCILLManager.Instance.SCILLClient.GetBattlePassLevelsAsync(battlePass.battle_pass_id);
+        UpdateBattlePassLevelUI();
+    }
 
-        for (int i = 0; i < _levels.Count; i++)
+    void UpdateBattlePassLevelUI()
+    {
+        for (int i = 0; i < itemsPerPage; i++)
         {
+            var levelIndex = (currentPageIndex * itemsPerPage) + i;
+            Debug.Log(levelIndex);
             GameObject levelGO = null;
             if (_levelObjects.TryGetValue(i, out levelGO))
             {
-                var levelItem = levelGO.GetComponent<SCILLBattlePassLevel>();
-                if (levelItem)
+                if (levelIndex >= _levels.Count)
                 {
-                    levelItem.battlePassLevel = _levels[i];
-                    levelItem.showLevelInfo = showLevelInfo;
+                    levelGO.SetActive(false);
+                }
+                else
+                {
+                    var levelItem = levelGO.GetComponent<SCILLBattlePassLevel>();
+                    if (levelItem)
+                    {
+                        levelItem.battlePassLevel = _levels[levelIndex];
+                        levelItem.showLevelInfo = showLevelInfo;
+                    }
+                    levelGO.SetActive(true);
                 }
             }
             else
@@ -57,17 +80,27 @@ public class SCILLBattlePass : MonoBehaviour
                 var levelItem = levelGO.GetComponent<SCILLBattlePassLevel>();
                 if (levelItem)
                 {
-                    levelItem.battlePassLevel = _levels[i];
+                    levelItem.battlePassLevel = _levels[levelIndex];
                     levelItem.showLevelInfo = levelItem;
                     levelItem.button.onClick.AddListener(delegate{OnBattlePassLevelClicked(levelItem);});
                 }
                 _levelObjects.Add(i, levelGO);
             }
         }
+        
+        UpdateNavigationButtons();
     }
     
     void OnBattlePassLevelClicked(SCILLBattlePassLevel level)
     {
+        if (_selectedBattlePassLevel)
+        {
+            _selectedBattlePassLevel.Deselect();
+        }
+
+        _selectedBattlePassLevel = level;
+        _selectedBattlePassLevel.Select();
+        
         var rewardAmount = level.battlePassLevel.reward_amount;
         if (!string.IsNullOrEmpty(rewardAmount))
         {
@@ -88,11 +121,11 @@ public class SCILLBattlePass : MonoBehaviour
         {
             battlePass.unlocked_at = unlockInfo.purchased_at;
             UpdateBattlePassLevels();
+            UpdateBattlePass();
         }
     }
-    
-    // Update is called once per frame
-    void Update()
+
+    void UpdateBattlePass()
     {
         if (battlePass.unlocked_at != null)
         {
@@ -103,5 +136,53 @@ public class SCILLBattlePass : MonoBehaviour
         {
             unlockGroup.SetActive(true);
         }
+    }
+    
+    public void UpdateNavigationButtons()
+    {
+        if (_levels.Count <= 0)
+        {
+            return;
+        }
+        
+        if (currentPageIndex <= 0)
+        {
+            prevButton.SetActive(false);
+        }
+        else
+        {
+            prevButton.SetActive(true);
+        }
+        
+        Debug.Log(_levels.Count + ":" + itemsPerPage);
+
+        if (currentPageIndex >= Decimal.Ceiling((decimal) _levels.Count / (decimal) itemsPerPage) - 1)
+        {
+            nextButton.SetActive(false);
+        }
+        else
+        {
+            nextButton.SetActive(true);
+        }
+
+        pageText.text = "Page " + (currentPageIndex + 1) + "/" + Decimal.Ceiling((decimal) _levels.Count / (decimal) itemsPerPage);
+    }
+
+    public void OnNextPage()
+    {
+        currentPageIndex += 1;
+        UpdateBattlePassLevelUI();
+    }
+
+    public void OnPrevPage()
+    {
+        currentPageIndex -= 1;
+        UpdateBattlePassLevelUI();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
     }
 }

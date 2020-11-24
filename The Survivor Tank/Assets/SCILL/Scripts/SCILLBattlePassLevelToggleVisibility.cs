@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Coffee.UIEffects;
 using SCILL.Model;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +23,7 @@ public class SCILLBattlePassLevelToggleVisibility : MonoBehaviour
     public BattlePassLevel battlePassLevel;
 
     private Image _image;
+    private UIDissolve _effect;
     
     // Start is called before the first frame update
     void Start()
@@ -33,6 +35,12 @@ public class SCILLBattlePassLevelToggleVisibility : MonoBehaviour
         }
 
         _image = GetComponent<Image>();
+        _effect = GetComponent<UIDissolve>();
+    }
+
+    void Show(bool show)
+    {
+        _image.enabled = show;
     }
 
     // Update is called once per frame
@@ -47,7 +55,7 @@ public class SCILLBattlePassLevelToggleVisibility : MonoBehaviour
         {
             if (battlePassLevel.activated_at == null)
             {
-                _image.enabled = (ifLocked == SCILLBattlePassLevelVisibility.Visible);
+                Show(ifLocked == SCILLBattlePassLevelVisibility.Visible);
             }
         }
         
@@ -55,7 +63,7 @@ public class SCILLBattlePassLevelToggleVisibility : MonoBehaviour
         {
             if (battlePassLevel.activated_at != null)
             {
-                _image.enabled = (ifUnlocked == SCILLBattlePassLevelVisibility.Visible);
+                Show(ifUnlocked == SCILLBattlePassLevelVisibility.Visible);
             }
         }
         
@@ -63,7 +71,7 @@ public class SCILLBattlePassLevelToggleVisibility : MonoBehaviour
         {
             if (battlePassLevel.level_completed == true)
             {
-                _image.enabled = (ifCompleted == SCILLBattlePassLevelVisibility.Visible);
+                Show(ifCompleted == SCILLBattlePassLevelVisibility.Visible);
             }
         }
         
@@ -71,7 +79,7 @@ public class SCILLBattlePassLevelToggleVisibility : MonoBehaviour
         {
             if (battlePassLevel.level_completed == false)
             {
-                _image.enabled = (ifUncompleted == SCILLBattlePassLevelVisibility.Visible);
+                Show(ifUncompleted == SCILLBattlePassLevelVisibility.Visible);
             }
         }
     }

@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   image: {fileID: 21300000, guid: 8d969643510744b11b91d4077cce3511, type: 3}
   name: Heavy Bullet
-  description: Get multiple turrets.
+  description: 'Get multiple turrets. '
   prefab: {fileID: 722649279007537508, guid: a2f28540774bf47329717ef88b31ef66, type: 3}
