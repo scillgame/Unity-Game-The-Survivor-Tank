@@ -24,11 +24,13 @@ public class SCILLBattlePass : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if (battlePass.image != null)
+        if (battlePass.image != null && image)
         {
             Sprite sprite = Resources.Load<Sprite>(battlePass.image);
             image.sprite = sprite;
         }
+        
+        if (rewardPreview) rewardPreview.gameObject.SetActive(false);
         
         UpdateBattlePassLevels();
     }
@@ -67,10 +69,9 @@ public class SCILLBattlePass : MonoBehaviour
     void OnBattlePassLevelClicked(SCILLBattlePassLevel level)
     {
         var rewardAmount = level.battlePassLevel.reward_amount;
-        SCILLReward reward = Resources.Load<SCILLReward>(rewardAmount);
-        if (reward)
+        if (!string.IsNullOrEmpty(rewardAmount))
         {
-            rewardPreview.reward = reward;
+            rewardPreview.SelectedBattlePassLevel = level.battlePassLevel;
             rewardPreview.gameObject.SetActive(true);
         }
         else

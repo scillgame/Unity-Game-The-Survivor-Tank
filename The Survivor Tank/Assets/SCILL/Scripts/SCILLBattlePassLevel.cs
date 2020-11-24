@@ -33,11 +33,11 @@ public class SCILLBattlePassLevel : MonoBehaviour
         if (_reward)
         {
             rewardImage.sprite = _reward.image;
-            reward.SetActive(true);
+            if (reward) reward.SetActive(true);
         }
         else
         {
-            reward.SetActive(false);
+            if (reward) reward.SetActive(false);
         }
 
         levelName.text = battlePassLevel.level_priority.ToString();
