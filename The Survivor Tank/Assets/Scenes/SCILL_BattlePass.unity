@@ -2421,7 +2421,7 @@ MonoBehaviour:
   battlePassPrefab: {fileID: 16907374734961380, guid: 1564e74951c8d49b1876893f45477e61,
     type: 3}
   rewardPreview: {fileID: 1923042801}
-  itemsPerPage: 3
+  itemsPerPage: 5
   currentPageIndex: 0
 --- !u!224 &2137121789 stripped
 RectTransform:
