@@ -20,6 +20,7 @@ public class SCILLBattlePass : MonoBehaviour
     public GameObject prevButton;
     public GameObject nextButton;
     public Text pageText;
+    public Text currentLevel;
 
     public int itemsPerPage = 5;
     public int currentPageIndex = 0;
@@ -87,7 +88,26 @@ public class SCILLBattlePass : MonoBehaviour
                 _levelObjects.Add(i, levelGO);
             }
         }
-        
+
+        // Find the current level and set the text
+        if (currentLevel)
+        {
+            int currentLevelIndex = 0;
+            for (int i = 0; i < _levels.Count; i++)
+            {
+                if (_levels[i].level_completed == true)
+                {
+                    currentLevelIndex = i;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            currentLevel.text = (currentLevelIndex+1).ToString();            
+        }
+
         UpdateNavigationButtons();
     }
     
