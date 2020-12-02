@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e60bd76c72693439fa34cc39bc2fb3e6, type: 3}
+  m_Name: grenade
+  m_EditorClassIdentifier: 
+  image: {fileID: 21300000, guid: c0a93687f59fc4384894e4cdf505fc51, type: 3}
+  name: Grenade
+  description: Get this awesome grenade to throw around
+  prefab: {fileID: 4430956890847254843, guid: d859d6a681e374ec5a5568df5f5afb51, type: 3}

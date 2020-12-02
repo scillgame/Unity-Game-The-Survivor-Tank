@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e60bd76c72693439fa34cc39bc2fb3e6, type: 3}
+  m_Name: gunshot
+  m_EditorClassIdentifier: 
+  image: {fileID: 21300000, guid: af6bcd06c736a40bca3fb11f9132355f, type: 3}
+  name: Gunshot
+  description: One Gunshot from the Sky on the closest enemy. Use that to free yourself.
+  prefab: {fileID: 6624439573379875275, guid: 96ea8e3f23dec424d97959354340860e, type: 3}

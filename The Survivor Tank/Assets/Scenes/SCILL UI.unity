@@ -98,7 +98,7 @@ LightmapSettings:
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
   m_LightingDataAsset: {fileID: 0}
-  m_UseShadowmask: 1
+  m_UseShadowmask: 0
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -579,8 +579,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba282a0b4fb304bb8a0d40aa74c5d544, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  APIKey: Vi[XOT5EPQIVX!BUcR5[q#l-5*)Wd1RLRP0i1rk!eh
-  AppId: 607404396196855809
+  APIKey: Ft7I0o0]DHch(-DTtV))s@TJ5AHrK2fklZ)W4YFE(p
+  AppId: 607253094060097537
+  environment: 2
 --- !u!4 &1774357000
 Transform:
   m_ObjectHideFlags: 0

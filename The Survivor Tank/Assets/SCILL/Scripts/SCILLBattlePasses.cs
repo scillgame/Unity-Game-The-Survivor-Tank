@@ -11,6 +11,7 @@ public class SCILLBattlePasses : MonoBehaviour
 
     public GameObject battlePassPrefab;
     public SCILLRewardPreview rewardPreview;
+    public SCILLBattlePassLevelChallenges activeChallenges;
 
     public int itemsPerPage = 5;
     public int currentPageIndex = 0;
@@ -37,6 +38,7 @@ public class SCILLBattlePasses : MonoBehaviour
                 battlePassScript.showLevelInfo = (i == 0);
                 battlePassScript.rewardPreview = rewardPreview;
                 battlePassScript.itemsPerPage = itemsPerPage;
+                battlePassScript.activeChallenges = activeChallenges;
             }
             battlePassGO.transform.SetParent(this.transform);
         }

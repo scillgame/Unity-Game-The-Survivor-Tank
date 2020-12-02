@@ -1,10 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using SCILL;
 using SCILL.Model;
 using UnityEngine;
 
-public class PersonalChallenges : MonoBehaviour
+public class PersonalChallenges : SCILLThreadSafety
 {
     public GameObject categoryPrefab;
     public GameObject challengePrefab;
@@ -33,8 +34,13 @@ public class PersonalChallenges : MonoBehaviour
                 }
             }
         }*/
+        
+        SCILLManager.Instance.SCILLClient.StartChallengeUpdateNotifications(OnChallengeWebhookMessage);
+    }
 
-        SCILLManager.Instance.OnChallengeWebhookMessage += OnChallengeWebhookMessage;
+    private void OnDestroy()
+    {
+        SCILLManager.Instance.SCILLClient.StopChallengeUpdateNotifications(OnChallengeWebhookMessage);
     }
 
     private Challenge FindChallengeById(string id)
@@ -100,10 +106,11 @@ public class PersonalChallenges : MonoBehaviour
 
     void OnChallengeWebhookMessage(ChallengeWebhookPayload payload)
     {
-        Debug.Log("WEBHOOK MESSAGE");
-        Debug.Log(payload);
-        
-        UpdateChallenge(payload.new_challenge);
+        // Make sure we run this code in Unitys "main" thread, i.e. in the update function
+        RunOnMainThread.Enqueue(() =>
+        {
+            UpdateChallenge(payload.new_challenge); 
+        });
     }
 
     public void UnlockPersonalChallenge(Challenge challenge)
@@ -152,10 +159,5 @@ public class PersonalChallenges : MonoBehaviour
                 UpdateChallenge(response.challenge);
             }
         }
-    }        
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

@@ -1,7 +1,13 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using MQTTnet;
+using MQTTnet.Client;
+using MQTTnet.Client.Options;
 using Newtonsoft.Json;
 using RestSharp.Deserializers;
 using SCILL;
@@ -33,17 +39,23 @@ public class SCILLManager : MonoBehaviour
     private string _accessToken;
 
     private WsClient _wsClient;
-    
-    public delegate void _OnChallengeWebhookMessage(ChallengeWebhookPayload payload);
 
-    public _OnChallengeWebhookMessage OnChallengeWebhookMessage;
+    private List<IMqttClient> _mqttClients = new List<IMqttClient>();
+    private MqttFactory _mqttFactory = new MqttFactory();
+
+    private IMqttClient _challengesMqttClient;
+    private IMqttClient _battlePassMqttClient;
+    
+    public delegate void ChallengeWebhookMessageHandler(ChallengeWebhookPayload payload);
+
+    public event ChallengeWebhookMessageHandler OnChallengeWebhookMessage;
     
     private JsonSerializerSettings serializerSettings = new JsonSerializerSettings
     {
         ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
     };
-    
-    async private void Awake()
+
+    private void Awake()
     {
         Debug.Log("User-ID: " + UserId);
         if (Instance == null) {
@@ -52,43 +64,21 @@ public class SCILLManager : MonoBehaviour
             // This part should be done in the backend if possible to not expose the API key
             _scillBackend = new SCILLBackend(this.APIKey, environment);
             _accessToken = _scillBackend.GetAccessToken(UserId);
-            
+
             _scillClient = new SCILLClient(_accessToken, AppId, environment);
-
-            string env = "production";
-            if (environment == Environment.Staging)
-            {
-                env = "staging";
-            } else if (environment == Environment.Development)
-            {
-                env = "development";
-            }
             
-            var server = "wss://playground.scillgame.com/scill/ws/challenges/" + AppId + "/" + UserId + "/unity-editor?environment=" + env;
-            _wsClient = new WsClient(server);
-            await _wsClient.Connect();
-
             DontDestroyOnLoad(gameObject);
         }
         else {
             Destroy(gameObject);
         }
     }
-    
+
     /// <summary>
     /// Unity method called every frame
     /// </summary>
     private void Update()
     {
-        // Check if server send new messages
-        var cqueue = _wsClient.receiveQueue;
-        string msg;
-        while (cqueue.TryPeek(out msg))
-        {
-            // Parse newly received messages
-            cqueue.TryDequeue(out msg);
-            HandleMessage(msg);
-        }
     }
     /// <summary>
     /// Method responsible for handling server messages

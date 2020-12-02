@@ -5,7 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Game.unity
     guid: 85347796cbd5b43fca91d618cc292306
+  - enabled: 1
+    path: Assets/Scenes/SCILL_BattlePass.unity
+    guid: 95465d16d99ac4f02842298f11b3eadb
   m_configObjects: {}

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Security.Permissions;
 using SCILL.Model;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SCILLBattlePass : MonoBehaviour
+public class SCILLBattlePass : SCILLThreadSafety
 {
     [HideInInspector]
     public BattlePass battlePass;
@@ -21,6 +23,7 @@ public class SCILLBattlePass : MonoBehaviour
     public GameObject nextButton;
     public Text pageText;
     public Text currentLevel;
+    public SCILLBattlePassLevelChallenges activeChallenges;
 
     public int itemsPerPage = 5;
     public int currentPageIndex = 0;
@@ -29,10 +32,20 @@ public class SCILLBattlePass : MonoBehaviour
     private SCILLBattlePassLevel _selectedBattlePassLevel;
 
     private Dictionary<int, GameObject> _levelObjects = new Dictionary<int, GameObject>();
-    
+
     // Start is called before the first frame update
     void Start()
     {
+        UpdateUI();
+    }
+
+    public void UpdateUI()
+    {
+        if (battlePass == null)
+        {
+            return;
+        }
+        
         if (battlePass.image != null && image)
         {
             Sprite sprite = Resources.Load<Sprite>(battlePass.image);
@@ -43,12 +56,81 @@ public class SCILLBattlePass : MonoBehaviour
 
         UpdateBattlePassLevels();
         UpdateBattlePass();
+        
+        // Get notifications if battle pass changes
+        SCILLManager.Instance.SCILLClient.StartBattlePassUpdateNotifications(this.battlePass.battle_pass_id, OnBattlePassChangedNotification);
+    }
+
+    private void OnBattlePassChangedNotification(BattlePassChallengeChangedPayload payload)
+    {
+        // Make sure we run this code on Unitys "main thread", i.e. in the Update function
+        RunOnMainThread.Enqueue(() =>
+        {
+            Debug.Log("Received Battle Pass Update");
+            Debug.Log(payload);
+
+            if (payload.webhook_type == "battlepass-challenge-changed")
+            {
+                if (payload.new_battle_pass_challenge.type == "in-progress")
+                {
+                    // This challenge is still in-progress, so we just update the challenges counter.
+                    var levelIndex = (int)payload.new_battle_pass_challenge.level_position_index;
+                    GameObject levelGO = null;
+                    if (_levelObjects.TryGetValue(levelIndex, out levelGO))
+                    {
+                        var levelItem = levelGO.GetComponent<SCILLBattlePassLevel>();
+                        if (levelItem)
+                        {
+                            var challengeIndex = (int) payload.new_battle_pass_challenge.challenge_position_index;
+                            if (challengeIndex < levelItem.battlePassLevel.challenges.Count)
+                            {
+                                var challenge = levelItem.battlePassLevel.challenges[challengeIndex];
+                                challenge.user_challenge_current_score =
+                                    payload.new_battle_pass_challenge.user_challenge_current_score;
+                                levelItem.UpdateUI();
+                            }
+                            
+                            // Update the challenges UI, too
+                            if (activeChallenges)
+                            {
+                                activeChallenges.UpdateUI();
+                            }
+                        }
+                        else
+                        {
+                            UpdateBattlePassLevels();
+                        }
+                    }
+                    else
+                    {
+                        // Something is fishy, reload levels
+                        UpdateBattlePassLevels();
+                    }
+                }
+                else
+                {
+                    // The type of the challenge changed, i.e. it's possible that level state changed, reload the levels
+                    UpdateBattlePassLevels();
+                }
+            }            
+        });
+    }
+
+    private void OnDestroy()
+    {
+        if (battlePass != null)
+        {
+            SCILLManager.Instance.SCILLClient.StopBattlePassUpdateNotifications(this.battlePass.battle_pass_id, OnBattlePassChangedNotification);   
+        }
     }
 
     async void UpdateBattlePassLevels()
     {
-        _levels = await SCILLManager.Instance.SCILLClient.GetBattlePassLevelsAsync(battlePass.battle_pass_id);
-        UpdateBattlePassLevelUI();
+        if (battlePass != null)
+        {
+            _levels = await SCILLManager.Instance.SCILLClient.GetBattlePassLevelsAsync(battlePass.battle_pass_id);
+            UpdateBattlePassLevelUI();
+        }
     }
 
     void UpdateBattlePassLevelUI()
@@ -105,7 +187,23 @@ public class SCILLBattlePass : MonoBehaviour
                 }
             }
 
-            currentLevel.text = (currentLevelIndex+1).ToString();            
+            currentLevel.text = (currentLevelIndex+1).ToString();
+        }
+        
+        if (activeChallenges)
+        {
+            int currentLevelIndex = 0;
+            for (int i = 0; i < _levels.Count; i++)
+            {
+                if (_levels[i].level_completed == false)
+                {
+                    currentLevelIndex = i;
+                    break;
+                }
+            }
+            
+            activeChallenges.battlePassLevel = _levels[currentLevelIndex];
+            activeChallenges.UpdateChallengeList();
         }
 
         UpdateNavigationButtons();
@@ -200,9 +298,8 @@ public class SCILLBattlePass : MonoBehaviour
         UpdateBattlePassLevelUI();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void OnClaimRewardItem()
     {
-
+        
     }
 }

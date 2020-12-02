@@ -27,6 +27,7 @@ public class SCILLBattlePassLevel : MonoBehaviour
     public GameObject reward;
     public GameObject[] locked;
     public GameObject[] claimed;
+    public Slider progressSlider;
 
     public bool showLevelInfo = true;
 
@@ -44,7 +45,7 @@ public class SCILLBattlePassLevel : MonoBehaviour
         UpdateUI();
     }
 
-    void UpdateUI()
+    public void UpdateUI()
     {
         _reward = Resources.Load<SCILLReward>(battlePassLevel.reward_amount);
         if (_reward)
@@ -71,6 +72,34 @@ public class SCILLBattlePassLevel : MonoBehaviour
         {
             go.SetActive(battlePassLevel.reward_claimed == true);
         }
+        
+        // Update slider
+        if (progressSlider)
+        {
+            int totalGoal = 0;
+            int totalCounter = 0;
+            foreach (var challenge in battlePassLevel.challenges)
+            {
+                totalGoal += (int)challenge.challenge_goal;
+                totalCounter += (int)challenge.user_challenge_current_score;
+            }
+
+            float progress = 0;
+            if (totalGoal > 0)
+            {
+                progress = (float)totalCounter / (float)totalGoal;   
+            }
+
+            if (totalCounter <= 0)
+            {
+                progressSlider.gameObject.SetActive(false);
+            }
+            else
+            {
+                progressSlider.value = progress;
+                progressSlider.gameObject.SetActive(true);
+            }
+        }
     }
 
     public void Select()
@@ -86,6 +115,16 @@ public class SCILLBattlePassLevel : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        // Show all game objects representing locked state
+        foreach (var go in locked)
+        {
+            go.SetActive(battlePassLevel.level_completed == false);
+        }
+
+        // Show all game objects representing locked state
+        foreach (var go in claimed)
+        {
+            go.SetActive(battlePassLevel.reward_claimed == true);
+        }
     }
 }
