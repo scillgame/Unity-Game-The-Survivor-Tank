@@ -147,7 +147,7 @@ public class SCILLBattlePassLevel : MonoBehaviour
         // Show all game objects representing locked state
         foreach (var go in locked)
         {
-            go.SetActive(battlePassLevel.level_completed == false);
+            go.SetActive(battlePassLevel.activated_at == null);
         }
 
         // Show all game objects representing locked state
