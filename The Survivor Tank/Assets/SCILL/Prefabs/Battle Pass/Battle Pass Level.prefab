@@ -776,7 +776,6 @@ MonoBehaviour:
   battlePassLevelInfo: {fileID: 1349210448024288187}
   levelName: {fileID: 1349210448399650705}
   rewardImage: {fileID: 1349210448369567444}
-  button: {fileID: 0}
   reward: {fileID: 1349210448312379380}
   locked:
   - {fileID: 1349210448281331724}
@@ -785,7 +784,9 @@ MonoBehaviour:
   claimed:
   - {fileID: 1349210449339588692}
   progressSlider: {fileID: 6489794412372141842}
+  progress: {fileID: 6761350657197443494}
   showLevelInfo: 1
+  button: {fileID: 0}
 --- !u!114 &5271467698424647086
 MonoBehaviour:
   m_ObjectHideFlags: 0

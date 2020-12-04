@@ -111,6 +111,19 @@ public class SCILLBattlePassLevel : MonoBehaviour
                 progressSlider.gameObject.SetActive(true);
             }
         }
+
+        if (progress)
+        {
+            if (battlePassLevel.activated_at != null && battlePassLevel.level_completed == false)
+            {
+                // Current level
+                progress.SetActive(true);
+            }
+            else
+            {
+                progress.SetActive(false);
+            }
+        }
     }
 
     public void Select()
