@@ -6,8 +6,11 @@ using UnityEngine.UI;
 
 public class SCILLBattlePassChallengeItem : MonoBehaviour
 {
+    [Tooltip("Text UI that is used to render the challenge name")]
     public Text challengeName;
+    [Tooltip("Progress slider that is used to show the progress of the challenge")]
     public Slider challengeProgressSlider;
+    [Tooltip("Text used to render the challenge goal as 34/500")]
     public Text challengeGoal;
 
     public BattlePassLevelChallenge challenge;

@@ -1,63 +1,48 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using MQTTnet;
-using MQTTnet.Client;
-using MQTTnet.Client.Options;
-using Newtonsoft.Json;
-using RestSharp.Deserializers;
 using SCILL;
 using SCILL.Api;
 using SCILL.Model;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
-using Environment = SCILL.Environment;
 
+[HelpURL("https://developers.scillgame.com")]
 public class SCILLManager : MonoBehaviour
 {
+    // Properties to be set in the Unity inspector
+    [Tooltip("Set your API key here. You can get your API-key in the SCILL Admin Panel")]
     public string APIKey;
+    [Tooltip("Set your App id here. You need to create an App in the SCILL Admin Panel")]
     public string AppId;
+    [Tooltip("You should leave this setting in Production. Sometimes, the SCILL team might ask you to change that.")]
     public SCILL.Environment environment;
 
+    // Getter for the access token
     public string AccessToken => _accessToken;
-
+    
+    // In this case, we use a unique devide identifier. Multi device support requires a user account system like
+    // Steam, Playfab, etc.
     public string UserId => SystemInfo.deviceUniqueIdentifier;
+    
+    // Default session id. This is just an example value.
     public string SessionId => "1234";
 
+    // Getter for the singleton instance of this class
     public static SCILLManager Instance; // **<- reference link to SCILL
+    
+    // Simple wrappers to get SCILL product APIs
     public EventsApi EventsApi => _scillClient.EventsApi;
     public ChallengesApi ChallengesApi => _scillClient.ChallengesApi;
-
+    public BattlePassesApi BattlePassesApi => _scillClient.BattlePassesApi;
     public SCILLClient SCILLClient => _scillClient;
 
+    // Local instances of SCILLClient. Please note, that SCILLBackend should not be used in game clients in production!
     private SCILLBackend _scillBackend;
     private SCILLClient _scillClient;
     private string _accessToken;
-
-    private WsClient _wsClient;
-
-    private List<IMqttClient> _mqttClients = new List<IMqttClient>();
-    private MqttFactory _mqttFactory = new MqttFactory();
-
-    private IMqttClient _challengesMqttClient;
-    private IMqttClient _battlePassMqttClient;
     
-    public delegate void ChallengeWebhookMessageHandler(ChallengeWebhookPayload payload);
-
-    public event ChallengeWebhookMessageHandler OnChallengeWebhookMessage;
-    
-    private JsonSerializerSettings serializerSettings = new JsonSerializerSettings
-    {
-        ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
-    };
-
     private void Awake()
     {
-        Debug.Log("User-ID: " + UserId);
+        // Create an instance of this class and make sure it stays (also survives scene changes)
         if (Instance == null) {
             Instance = this;
             
@@ -80,29 +65,21 @@ public class SCILLManager : MonoBehaviour
     private void Update()
     {
     }
-    /// <summary>
-    /// Method responsible for handling server messages
-    /// </summary>
-    /// <param name="msg">Message.</param>
-    private void HandleMessage(string msg)
-    {
-        Debug.Log("Server: " + msg);
-        
-        var webhookPayload = (ChallengeWebhookPayload)JsonConvert.DeserializeObject(msg, typeof(ChallengeWebhookPayload), serializerSettings);
-        Debug.Log(webhookPayload);
-        OnChallengeWebhookMessage(webhookPayload);
-    }    
 
+    // Basic convenience function to send an event. Users global UserId and sessionId
     public async void SendEventAsync(string eventName, string eventType = "single", EventMetaData metaData = null)
     {
+        // Please note, in some cases you should change session ids. This is just a simple example where we don't need
+        // to do that
         Debug.Log("Sending event " + eventName);
         var payload = new EventPayload(UserId, SessionId, eventName, eventType, metaData);
         var response = await EventsApi.SendEventAsync(payload);
         Debug.Log(response);
     }
 
-    public Task<List<ChallengeCategory>> GetPersonalChallengesAsync()
+    // Basic wrapper for getting personal challenges
+    public async Task<List<ChallengeCategory>> GetPersonalChallengesAsync()
     {
-        return _scillClient.ChallengesApi.GetPersonalChallengesAsync(AppId);
+        return await ChallengesApi.GetPersonalChallengesAsync(AppId);
     }
 }

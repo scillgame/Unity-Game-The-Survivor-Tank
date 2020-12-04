@@ -6,14 +6,20 @@ using UnityEngine.UI;
 
 public class SCILLRewardPreview : MonoBehaviour
 {
+    [Header("Required connections")]
+    [Tooltip("Connect to a text field to render the reward")]
+    public Text rewardName;
+    [Tooltip("Connect to a text field to render a description of the reward")]
+    public Text rewardDescription;
+    [Tooltip("Connect to a claim button which should have a Button attached. This item is hidden unless the reward can be claimed and has not been yet claimed")]
+    public GameObject claimButton;
+    
+    [Header("Optional connections")]
+    [Tooltip("Connect to a Reward Photobox which will be used to render a 3D representation of the reward")]
+    public GameObject photoBox;
+    
     private SCILLReward _scillReward;
     private GameObject _rewardModel;
-
-    public GameObject photoBox;
-    public Text rewardName;
-    public Text rewardDescription;
-    public GameObject claimButton;
-
     private BattlePassLevel _selectedBattlePassLevel;
 
     public BattlePassLevel SelectedBattlePassLevel

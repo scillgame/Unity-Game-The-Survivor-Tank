@@ -10,6 +10,15 @@ public class SCILLBattlePassLevelChallenges : MonoBehaviour
     
     private Dictionary<string, GameObject> _challengeObjects = new Dictionary<string, GameObject>();
     
+    private void Awake()
+    {
+        // Make sure we delete all items from the battle pass levels container
+        // This way we can leave some dummy level items in Unity Editor which makes it easier to design UI
+        foreach (SCILLBattlePassChallengeItem child in GetComponentsInChildren<SCILLBattlePassChallengeItem>()) {
+            Destroy(child.gameObject);
+        }            
+    }
+    
     // Start is called before the first frame update
     void Start()
     {

@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class SCILLBattlePassManager : MonoBehaviour
 {
+    [Tooltip("The Battle Pass UI to set and render the selected battle pass")]
     public SCILLBattlePass battlePassUI;
 
     private List<BattlePass> _battlePasses;

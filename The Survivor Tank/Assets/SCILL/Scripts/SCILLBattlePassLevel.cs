@@ -7,9 +7,32 @@ using UnityEngine.UI;
 
 public class SCILLBattlePassLevel : MonoBehaviour
 {
-    [HideInInspector]
-    private BattlePassLevel _battlePassLevel;
+    [Header("Optional connections")]
+    [Tooltip("Set a game object that will be hidden if showLevelInfo of the SCILLBattlePass script will be false. It typical indicates the level number")]
+    public GameObject battlePassLevelInfo;
+    [Tooltip("A textfield that will be used to render the level number")]
+    public Text levelName;
+    [Tooltip("An image field that will be used to set the image of the reward that is set in the Admin Panel")]
+    public Image rewardImage;
+    
+    [Tooltip("A game object that will be hidden if not reward is set in the Admin Panel for this level. Otherwise it will be shown.")]
+    public GameObject reward;
+    [Tooltip("An array of objects that will be shown if the level is locked and hidden if it is not locked. It's used to render an overlay above the level to dim it.")]
+    public GameObject[] locked;
+    [Tooltip("An array of objects that will be shown if the level is claimed and hidden if it is not claimed. It's used to render a checkbox.")]
+    public GameObject[] claimed;
+    [Tooltip("A slider that will be used to render the current progress in this level")]
+    public Slider progressSlider;
+    [Tooltip("A game object that will be shown if this is the current level and hidden if not")]
+    public GameObject progress;
 
+    [HideInInspector]
+    public bool showLevelInfo = true;
+    [HideInInspector]
+    public Button button;
+    
+    private BattlePassLevel _battlePassLevel;
+    
     public BattlePassLevel battlePassLevel
     {
         get => _battlePassLevel;
@@ -20,19 +43,7 @@ public class SCILLBattlePassLevel : MonoBehaviour
         }
     }
 
-    public GameObject battlePassLevelInfo;
-    public Text levelName;
-    public Image rewardImage;
-    public Button button;
-    public GameObject reward;
-    public GameObject[] locked;
-    public GameObject[] claimed;
-    public Slider progressSlider;
-
-    public bool showLevelInfo = true;
-
     private SCILLReward _reward;
-    
 
     private void Awake()
     {
@@ -115,6 +126,11 @@ public class SCILLBattlePassLevel : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (battlePassLevel == null)
+        {
+            return;
+        }
+        
         // Show all game objects representing locked state
         foreach (var go in locked)
         {
