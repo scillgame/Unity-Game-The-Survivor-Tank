@@ -12,11 +12,7 @@ public class SCILLBattlePassLevelChallenges : MonoBehaviour
     
     private void Awake()
     {
-        // Make sure we delete all items from the battle pass levels container
-        // This way we can leave some dummy level items in Unity Editor which makes it easier to design UI
-        foreach (SCILLBattlePassChallengeItem child in GetComponentsInChildren<SCILLBattlePassChallengeItem>()) {
-            Destroy(child.gameObject);
-        }            
+        ClearChallenges();     
     }
     
     // Start is called before the first frame update
@@ -25,12 +21,24 @@ public class SCILLBattlePassLevelChallenges : MonoBehaviour
         UpdateChallengeList();
     }
 
+    void ClearChallenges()
+    {
+        // Make sure we delete all items from the battle pass levels container
+        // This way we can leave some dummy level items in Unity Editor which makes it easier to design UI
+        foreach (SCILLBattlePassChallengeItem child in GetComponentsInChildren<SCILLBattlePassChallengeItem>()) {
+            Destroy(child.gameObject);
+        }        
+    }
+
     public void UpdateChallengeList()
     {
         if (battlePassLevel == null)
         {
             return;
         }
+        
+        // Make sure we remove old challenges from the list
+        ClearChallenges();
         
         Debug.Log("UPDATE CHALLENGE LIST");
         foreach (var challenge in battlePassLevel.challenges)
