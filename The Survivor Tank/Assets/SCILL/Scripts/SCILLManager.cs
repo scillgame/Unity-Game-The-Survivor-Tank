@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using SCILL;
 using SCILL.Api;
 using SCILL.Model;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Networking;
 
 [HelpURL("https://developers.scillgame.com")]
 public class SCILLManager : MonoBehaviour
@@ -81,5 +83,15 @@ public class SCILLManager : MonoBehaviour
     public async Task<List<ChallengeCategory>> GetPersonalChallengesAsync()
     {
         return await ChallengesApi.GetPersonalChallengesAsync(AppId);
+    }
+
+    [ContextMenu("Open SCILL Playground")]
+    public void OpenPlayground()
+    {
+        Debug.Log("Opening Playground");
+        var url = "https://playground.scillgame.com?appId=" + UnityWebRequest.EscapeURL(this.AppId) + "&apiKey=" + UnityWebRequest.EscapeURL(this.APIKey) +
+            "&environment=" + UnityWebRequest.EscapeURL(this.environment.ToString().ToLower()) + "&userId=" + UnityWebRequest.EscapeURL(UserId);
+        Debug.Log(url);
+        Help.BrowseURL(url);
     }
 }
