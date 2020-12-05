@@ -18,12 +18,14 @@ public class SCILLManager : MonoBehaviour
     [Tooltip("You should leave this setting in Production. Sometimes, the SCILL team might ask you to change that.")]
     public SCILL.Environment environment;
 
+    public string UserId = "12345";
+
     // Getter for the access token
     public string AccessToken => _accessToken;
     
     // In this case, we use a unique devide identifier. Multi device support requires a user account system like
     // Steam, Playfab, etc.
-    public string UserId => SystemInfo.deviceUniqueIdentifier;
+    //public string UserId => SystemInfo.deviceUniqueIdentifier;
     
     // Default session id. This is just an example value.
     public string SessionId => "1234";

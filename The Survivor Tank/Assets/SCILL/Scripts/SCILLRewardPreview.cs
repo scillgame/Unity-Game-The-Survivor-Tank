@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using SCILL.Model;
 using UnityEngine;
@@ -21,14 +22,31 @@ public class SCILLRewardPreview : MonoBehaviour
     private SCILLReward _scillReward;
     private GameObject _rewardModel;
     private BattlePassLevel _selectedBattlePassLevel;
+    
+    public delegate void BattlePassLevelRewardClaimedAction(BattlePassLevel level);
+    public static event BattlePassLevelRewardClaimedAction OnBattlePassLevelRewardClaimed;
 
-    public BattlePassLevel SelectedBattlePassLevel
+    private void OnEnable()
     {
-        get => _selectedBattlePassLevel;
-        set
+        SCILLBattlePassLevels.OnSelectedBattlePassLevelChanged += OnSelectedBattlePassLevelChanged;
+    }
+
+    private void OnDisable()
+    {
+        SCILLBattlePassLevels.OnSelectedBattlePassLevelChanged -= OnSelectedBattlePassLevelChanged;
+    }
+
+    private void OnSelectedBattlePassLevelChanged(BattlePassLevel selectedBattlePassLevel)
+    {
+        Debug.Log("OnSelectedBattlePassLevelChanged");
+        _selectedBattlePassLevel = selectedBattlePassLevel;
+        if (selectedBattlePassLevel.reward_amount != null)
         {
-            _selectedBattlePassLevel = value;
-            SetRewardId(_selectedBattlePassLevel.reward_amount);
+            SetRewardId(selectedBattlePassLevel.reward_amount);
+        }
+        else
+        {
+            ToggleUI(false);
         }
     }
 
@@ -38,10 +56,16 @@ public class SCILLRewardPreview : MonoBehaviour
         if (_scillReward)
         {
             UpdateScillReward();
+            ToggleUI(true);
+        }
+        else
+        {
+            // No reward found
+            ToggleUI(false);
         }
     }
 
-    void UpdateScillReward()
+    private void UpdateScillReward()
     {
         if (_rewardModel)
         {
@@ -84,10 +108,15 @@ public class SCILLRewardPreview : MonoBehaviour
         }
     }
 
+    private void ToggleUI(bool show)
+    {
+        transform.GetChild(0).gameObject.SetActive(show);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        ToggleUI(false);   
     }
 
     // Update is called once per frame
@@ -105,5 +134,7 @@ public class SCILLRewardPreview : MonoBehaviour
             _selectedBattlePassLevel.reward_claimed = true;
         }
         UpdateScillReward();
+
+        OnBattlePassLevelRewardClaimed?.Invoke(_selectedBattlePassLevel);
     }
 }

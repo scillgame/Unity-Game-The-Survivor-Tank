@@ -27,14 +27,10 @@ public class SCILLBattlePass : SCILLThreadSafety
     public Text pageText;
     [Tooltip("A text field that will be set with the current active level. Just a number like 2 or 99")]
     public Text currentLevel;
-    [Tooltip("All Battle Pass Level prefabs will be instantiated into this transform. Make sure to apply some sort of automatic layout system")]
-    public Transform battlePassLevels;
-    
+    [Tooltip("A text UI element that is used to render the name of the battle pass")]
+    public Text battlePassNameText;
+
     [Header("Optional connections")]
-    [Tooltip("Connect the active challenges UI which will be updated with the challenges of the current active level automatically")]
-    public SCILLBattlePassLevelChallenges activeChallenges;
-    [Tooltip("Connect a reward preview. It will be hidden if no level is selected and will be shown with the current levels reward if a level is selected")]
-    public SCILLRewardPreview rewardPreview;
     [Tooltip("An image that will be set with the image set for the battle pass. It will be loaded as a Sprite with the name you set in Admin Panel. Make sure this Sprite is in a Resources folder - otherwise it will not be loaded at runtime")]
     public Image image;
     
@@ -53,157 +49,38 @@ public class SCILLBattlePass : SCILLThreadSafety
     private int currentPageIndex = 0;
     private Dictionary<int, GameObject> _levelObjects = new Dictionary<int, GameObject>();
 
+    public delegate void CurrentPageChangedAction(int currentPageIndex);
+    public event CurrentPageChangedAction OnCurrentPageChanged;
+
     // Start is called before the first frame update
     void Start()
     {
         UpdateUI();
     }
 
-    private void Awake()
+    private void OnEnable()
     {
-        // Make sure we delete all items from the battle pass levels container
-        // This way we can leave some dummy level items in Unity Editor which makes it easier to design UI
-        if (battlePassLevels)
-        {
-            foreach (SCILLBattlePassLevel child in GetComponentsInChildren<SCILLBattlePassLevel>()) {
-                Destroy(child.gameObject);
-            }            
-        }
+        SCILLBattlePassManager.OnBattlePassUpdatedFromServer += OnBattlePassUpdatedFromServer;
+        SCILLBattlePassManager.OnBattlePassLevelsUpdatedFromServer += OnBattlePassLevelsUpdatedFromServer;
+        UpdateUI();
     }
-
-    public void UpdateUI()
-    {
-        if (battlePass == null)
-        {
-            return;
-        }
-        
-        if (battlePass.image != null && image)
-        {
-            Sprite sprite = Resources.Load<Sprite>(battlePass.image);
-            image.sprite = sprite;
-        }
-        
-        if (rewardPreview) rewardPreview.gameObject.SetActive(false);
-
-        UpdateBattlePassLevels();
-        UpdateBattlePass();
-        
-        // Get notifications if battle pass changes
-        SCILLManager.Instance.SCILLClient.StartBattlePassUpdateNotifications(this.battlePass.battle_pass_id, OnBattlePassChangedNotification);
-    }
-
-    private void OnBattlePassChangedNotification(BattlePassChallengeChangedPayload payload)
-    {
-        // Make sure we run this code on Unitys "main thread", i.e. in the Update function
-        RunOnMainThread.Enqueue(() =>
-        {
-            Debug.Log("Received Battle Pass Update");
-            Debug.Log(payload);
-
-            if (payload.webhook_type == "battlepass-challenge-changed")
-            {
-                if (payload.new_battle_pass_challenge.type == "in-progress")
-                {
-                    // This challenge is still in-progress, so we just update the challenges counter.
-                    var levelIndex = (int)payload.new_battle_pass_challenge.level_position_index;
-                    GameObject levelGO = null;
-                    if (_levelObjects.TryGetValue(levelIndex, out levelGO))
-                    {
-                        var levelItem = levelGO.GetComponent<SCILLBattlePassLevel>();
-                        if (levelItem)
-                        {
-                            var challengeIndex = (int) payload.new_battle_pass_challenge.challenge_position_index;
-                            if (challengeIndex < levelItem.battlePassLevel.challenges.Count)
-                            {
-                                var challenge = levelItem.battlePassLevel.challenges[challengeIndex];
-                                challenge.user_challenge_current_score =
-                                    payload.new_battle_pass_challenge.user_challenge_current_score;
-                                levelItem.UpdateUI();
-                            }
-                            
-                            // Update the challenges UI, too
-                            if (activeChallenges)
-                            {
-                                activeChallenges.UpdateUI();
-                            }
-                        }
-                        else
-                        {
-                            UpdateBattlePassLevels();
-                        }
-                    }
-                    else
-                    {
-                        // Something is fishy, reload levels
-                        UpdateBattlePassLevels();
-                    }
-                }
-                else
-                {
-                    // The type of the challenge changed, i.e. it's possible that level state changed, reload the levels
-                    UpdateBattlePassLevels();
-                }
-            }            
-        });
-    }
-
+    
     private void OnDestroy()
     {
-        if (battlePass != null)
-        {
-            SCILLManager.Instance.SCILLClient.StopBattlePassUpdateNotifications(this.battlePass.battle_pass_id, OnBattlePassChangedNotification);   
-        }
+        SCILLBattlePassManager.OnBattlePassUpdatedFromServer -= OnBattlePassUpdatedFromServer;
+        SCILLBattlePassManager.OnBattlePassLevelsUpdatedFromServer -= OnBattlePassLevelsUpdatedFromServer;
     }
 
-    async void UpdateBattlePassLevels()
+    private void OnBattlePassUpdatedFromServer(BattlePass battlePass)
     {
-        if (battlePass != null)
-        {
-            _levels = await SCILLManager.Instance.SCILLClient.GetBattlePassLevelsAsync(battlePass.battle_pass_id);
-            UpdateBattlePassLevelUI();
-        }
+        this.battlePass = battlePass;
+        UpdateUI();
     }
-
-    void UpdateBattlePassLevelUI()
+    
+    private void OnBattlePassLevelsUpdatedFromServer(List<BattlePassLevel> battlePassLevels)
     {
-        for (int i = 0; i < itemsPerPage; i++)
-        {
-            var levelIndex = (currentPageIndex * itemsPerPage) + i;
-            Debug.Log(levelIndex);
-            GameObject levelGO = null;
-            if (_levelObjects.TryGetValue(i, out levelGO))
-            {
-                if (levelIndex >= _levels.Count)
-                {
-                    levelGO.SetActive(false);
-                }
-                else
-                {
-                    var levelItem = levelGO.GetComponent<SCILLBattlePassLevel>();
-                    if (levelItem)
-                    {
-                        levelItem.battlePassLevel = _levels[levelIndex];
-                        levelItem.showLevelInfo = showLevelInfo;
-                    }
-                    levelGO.SetActive(true);
-                }
-            }
-            else
-            {
-                levelGO = Instantiate(levelPrefab, battlePassLevels, false);
-                var levelItem = levelGO.GetComponent<SCILLBattlePassLevel>();
-                if (levelItem)
-                {
-                    levelItem.battlePassLevel = _levels[levelIndex];
-                    levelItem.showLevelInfo = levelItem;
-                    levelItem.button.onClick.AddListener(delegate{OnBattlePassLevelClicked(levelItem);});
-                }
-                _levelObjects.Add(i, levelGO);
-            }
-        }
-
-        // Find the current level and set the text
+        _levels = battlePassLevels;
+        
         if (currentLevel)
         {
             int currentLevelIndex = 0;
@@ -222,61 +99,27 @@ public class SCILLBattlePass : SCILLThreadSafety
             currentLevel.text = (currentLevelIndex+1).ToString();
         }
         
-        if (activeChallenges)
-        {
-            int currentLevelIndex = 0;
-            for (int i = 0; i < _levels.Count; i++)
-            {
-                if (_levels[i].level_completed == false)
-                {
-                    currentLevelIndex = i;
-                    break;
-                }
-            }
-            
-            activeChallenges.battlePassLevel = _levels[currentLevelIndex];
-            activeChallenges.UpdateChallengeList();
-        }
-
         UpdateNavigationButtons();
     }
-    
-    void OnBattlePassLevelClicked(SCILLBattlePassLevel level)
+
+    private void UpdateUI()
     {
-        if (_selectedBattlePassLevel)
+        if (battlePass == null)
         {
-            _selectedBattlePassLevel.Deselect();
+            return;
         }
 
-        _selectedBattlePassLevel = level;
-        _selectedBattlePassLevel.Select();
+        if (battlePassNameText)
+        {
+            battlePassNameText.text = battlePass.battle_pass_name;
+        }
         
-        var rewardAmount = level.battlePassLevel.reward_amount;
-        if (!string.IsNullOrEmpty(rewardAmount))
+        if (battlePass.image != null && image)
         {
-            rewardPreview.SelectedBattlePassLevel = level.battlePassLevel;
-            rewardPreview.gameObject.SetActive(true);
+            Sprite sprite = Resources.Load<Sprite>(battlePass.image);
+            image.sprite = sprite;
         }
-        else
-        {
-            rewardPreview.gameObject.SetActive(false);
-        }
-    }
 
-    public async void OnBattlePassUnlockButtonPressed()
-    {
-        var purchaseInfo = new BattlePassUnlockPayload(0, "EUR");
-        var unlockInfo = await SCILLManager.Instance.SCILLClient.UnlockBattlePassAsync(battlePass.battle_pass_id, purchaseInfo);
-        if (unlockInfo != null)
-        {
-            battlePass.unlocked_at = unlockInfo.purchased_at;
-            UpdateBattlePassLevels();
-            UpdateBattlePass();
-        }
-    }
-
-    void UpdateBattlePass()
-    {
         if (battlePass.unlocked_at != null)
         {
             // This battle pass is unlocked
@@ -287,7 +130,19 @@ public class SCILLBattlePass : SCILLThreadSafety
             unlockGroup.SetActive(true);
         }
     }
-    
+
+    public async void OnBattlePassUnlockButtonPressed()
+    {
+        var purchaseInfo = new BattlePassUnlockPayload(0, "EUR");
+        var unlockInfo = await SCILLManager.Instance.SCILLClient.UnlockBattlePassAsync(battlePass.battle_pass_id, purchaseInfo);
+        if (unlockInfo != null)
+        {
+            battlePass.unlocked_at = unlockInfo.purchased_at;
+            SendMessageUpwards("UpdateBattlePassLevelsFromServer");
+            UpdateUI();
+        }
+    }
+
     public void UpdateNavigationButtons()
     {
         if (_levels.Count <= 0)
@@ -321,17 +176,18 @@ public class SCILLBattlePass : SCILLThreadSafety
     public void OnNextPage()
     {
         currentPageIndex += 1;
-        UpdateBattlePassLevelUI();
+        
+        UpdateNavigationButtons();
+        
+        OnCurrentPageChanged?.Invoke(currentPageIndex);
     }
 
     public void OnPrevPage()
     {
         currentPageIndex -= 1;
-        UpdateBattlePassLevelUI();
-    }
 
-    public void OnClaimRewardItem()
-    {
+        UpdateNavigationButtons();
         
+        OnCurrentPageChanged?.Invoke(currentPageIndex);
     }
 }

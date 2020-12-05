@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using SCILL.Model;
 using UnityEngine;
@@ -7,9 +8,7 @@ public class SCILLBattlePassLevelChallenges : MonoBehaviour
 {
     public GameObject challengePrefab;
     public BattlePassLevel battlePassLevel;
-    
-    private Dictionary<string, GameObject> _challengeObjects = new Dictionary<string, GameObject>();
-    
+
     private void Awake()
     {
         ClearChallenges();     
@@ -18,6 +17,33 @@ public class SCILLBattlePassLevelChallenges : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        UpdateChallengeList();
+    }
+
+    private void OnEnable()
+    {
+        SCILLBattlePassManager.OnBattlePassLevelsUpdatedFromServer += OnBattlePassLevelsUpdatedFromServer;
+    }
+
+    private void OnDestroy()
+    {
+        SCILLBattlePassManager.OnBattlePassLevelsUpdatedFromServer -= OnBattlePassLevelsUpdatedFromServer;
+    }
+
+    private void OnBattlePassLevelsUpdatedFromServer(List<BattlePassLevel> battlePassLevels)
+    {
+        // Find current level and update the challenges list
+        int currentLevelIndex = 0;
+        for (int i = 0; i < battlePassLevels.Count; i++)
+        {
+            if (battlePassLevels[i].level_completed == false)
+            {
+                currentLevelIndex = i;
+                break;
+            }
+        }
+            
+        battlePassLevel = battlePassLevels[currentLevelIndex];
         UpdateChallengeList();
     }
 
@@ -43,49 +69,17 @@ public class SCILLBattlePassLevelChallenges : MonoBehaviour
         Debug.Log("UPDATE CHALLENGE LIST");
         foreach (var challenge in battlePassLevel.challenges)
         {
-            GameObject challengeGO = null;
-            if (_challengeObjects.TryGetValue(challenge.challenge_id, out challengeGO))
+            // Only add active challenges to the list
+            if (challenge.type == "in-progress")
             {
-                if (challenge.type != "in-progress")
+                var challengeGO = Instantiate(challengePrefab, transform);
+                var challengeItem = challengeGO.GetComponent<SCILLBattlePassChallengeItem>();
+                if (challengeItem)
                 {
-                    // This challenge has been completed. Remove from the list
-                    Destroy(challengeGO);
-                }
-                else
-                {
-                    var challengeItem = challengeGO.GetComponent<SCILLBattlePassChallengeItem>();
-                    if (challengeItem)
-                    {
-                        challengeItem.challenge = challenge;
-                        challengeItem.UpdateUI();
-                    }                    
+                    challengeItem.challenge = challenge;
+                    challengeItem.UpdateUI();
                 }
             }
-            else
-            {
-                // Only add active challenges to the list
-                if (challenge.type == "in-progress")
-                {
-                    challengeGO = Instantiate(challengePrefab, transform);
-                    var challengeItem = challengeGO.GetComponent<SCILLBattlePassChallengeItem>();
-                    if (challengeItem)
-                    {
-                        challengeItem.challenge = challenge;
-                        challengeItem.UpdateUI();
-                    }
-
-                    _challengeObjects.Add(challenge.challenge_id, challengeGO);                    
-                }
-            }
-        }
-    }
-
-    public void UpdateUI()
-    {
-        foreach (var challengeGO in _challengeObjects.Values)
-        {
-            var challengeItem = challengeGO.GetComponent<SCILLBattlePassChallengeItem>();
-            challengeItem.UpdateUI();
         }
     }
 

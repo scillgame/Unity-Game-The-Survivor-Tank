@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using SCILL.Model;
 using UnityEngine;
@@ -20,6 +21,28 @@ public class SCILLBattlePassChallengeItem : MonoBehaviour
     {
         UpdateUI();
     }
+    
+    private void OnEnable()
+    {
+        SCILLBattlePassManager.OnBattlePassChallengeUpdate += OnBattlePassChallengeUpdate;
+    }
+
+    private void OnDestroy()
+    {
+        SCILLBattlePassManager.OnBattlePassChallengeUpdate -= OnBattlePassChallengeUpdate;
+    }
+
+    private void OnBattlePassChallengeUpdate(BattlePassChallengeChangedPayload challengeChangedPayload)
+    {
+        // Update local challenge object if it has the same id
+        if (challengeChangedPayload.new_battle_pass_challenge.challenge_id == challenge.challenge_id)
+        {
+            challenge.type = challengeChangedPayload.new_battle_pass_challenge.type;
+            challenge.user_challenge_current_score =
+                challengeChangedPayload.new_battle_pass_challenge.user_challenge_current_score;
+            UpdateUI();   
+        }
+    }
 
     public void UpdateUI()
     {
@@ -40,11 +63,5 @@ public class SCILLBattlePassChallengeItem : MonoBehaviour
             challengeGoal.text = challenge.user_challenge_current_score.ToString() + "/" +
                                  challenge.challenge_goal.ToString();
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        UpdateUI();
     }
 }

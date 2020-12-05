@@ -36,9 +36,7 @@ public class SCILLBattlePasses : MonoBehaviour
             {
                 battlePassScript.battlePass = battlePass;
                 battlePassScript.showLevelInfo = (i == 0);
-                battlePassScript.rewardPreview = rewardPreview;
                 battlePassScript.itemsPerPage = itemsPerPage;
-                battlePassScript.activeChallenges = activeChallenges;
             }
             battlePassGO.transform.SetParent(this.transform);
         }

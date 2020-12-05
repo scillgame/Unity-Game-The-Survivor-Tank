@@ -16,34 +16,43 @@ public class SCILLBattlePassToggleVisibility : MonoBehaviour
     public SCILLBattlePassVisibility ifLocked;
     public SCILLBattlePassVisibility ifUnlocked;
     
-    [HideInInspector]
-    public BattlePass battlePass;
+    private BattlePass _battlePass;
     
     private Image _image;
     
     // Start is called before the first frame update
     void Start()
     {
-        var battlePassUI = GetComponentInParent<SCILLBattlePass>();
-        if (battlePassUI)
-        {
-            battlePass = battlePassUI.battlePass;
-        }
-
         _image = GetComponent<Image>();
+    }
+    
+    private void OnEnable()
+    {
+        SCILLBattlePassManager.OnBattlePassUpdatedFromServer += OnBattlePassUpdatedFromServer;
+    }
+    
+    private void OnDisable()
+    {
+        SCILLBattlePassManager.OnBattlePassUpdatedFromServer -= OnBattlePassUpdatedFromServer;
+    }
+
+    private void OnBattlePassUpdatedFromServer(BattlePass battlePass)
+    {
+        _battlePass = battlePass;
+        UpdateUI();
     }
 
     // Update is called once per frame
-    void Update()
+    void UpdateUI()
     {
-        if (!_image || battlePass == null)
+        if (!_image || _battlePass == null)
         {
             return;
         }
 
         if (ifLocked != SCILLBattlePassVisibility.DoNothing)
         {
-            if (battlePass.unlocked_at == null)
+            if (_battlePass.unlocked_at == null)
             {
                 _image.enabled = (ifLocked == SCILLBattlePassVisibility.Visible);
             }
@@ -51,7 +60,7 @@ public class SCILLBattlePassToggleVisibility : MonoBehaviour
         
         if (ifUnlocked != SCILLBattlePassVisibility.DoNothing)
         {
-            if (battlePass.unlocked_at != null)
+            if (_battlePass.unlocked_at != null)
             {
                 _image.enabled = (ifUnlocked == SCILLBattlePassVisibility.Visible);
             }

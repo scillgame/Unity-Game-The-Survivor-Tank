@@ -55,9 +55,30 @@ public class SCILLBattlePassLevel : MonoBehaviour
     {
         UpdateUI();
     }
+    
+    private void OnEnable()
+    {
+        SCILLBattlePassManager.OnBattlePassChallengeUpdate += OnBattlePassChallengeUpdate;
+        UpdateUI();
+    }
+
+    private void OnDestroy()
+    {
+        SCILLBattlePassManager.OnBattlePassChallengeUpdate -= OnBattlePassChallengeUpdate;
+    }
+
+    private void OnBattlePassChallengeUpdate(BattlePassChallengeChangedPayload challengeChangedPayload)
+    {
+        UpdateUI();
+    }
 
     public void UpdateUI()
     {
+        if (battlePassLevel == null)
+        {
+            return;
+        }
+        
         _reward = Resources.Load<SCILLReward>(battlePassLevel.reward_amount);
         if (_reward)
         {
@@ -87,27 +108,26 @@ public class SCILLBattlePassLevel : MonoBehaviour
         // Update slider
         if (progressSlider)
         {
-            int totalGoal = 0;
-            int totalCounter = 0;
+            float totalProgress = 0;
             foreach (var challenge in battlePassLevel.challenges)
             {
-                totalGoal += (int)challenge.challenge_goal;
-                totalCounter += (int)challenge.user_challenge_current_score;
-            }
+                float challengeProgress = 0;
+                if (challenge.challenge_goal > 0)
+                {
+                    challengeProgress = (float) challenge.user_challenge_current_score /
+                                        (float) challenge.challenge_goal;
+                }
 
-            float progress = 0;
-            if (totalGoal > 0)
-            {
-                progress = (float)totalCounter / (float)totalGoal;   
+                totalProgress += challengeProgress * (1.0f / (float)battlePassLevel.challenges.Count);
             }
-
-            if (totalCounter <= 0)
+            
+            if (totalProgress <= 0)
             {
                 progressSlider.gameObject.SetActive(false);
             }
             else
             {
-                progressSlider.value = progress;
+                progressSlider.value = totalProgress;
                 progressSlider.gameObject.SetActive(true);
             }
         }
